@@ -259,7 +259,7 @@ fun factorizeToString(n: Int): String {
 fun convert(n: Int, base: Int): List<Int> {
     var list = mutableListOf<Int>()
     var curN = n
-    while(curN > base){
+    while(curN >= base){
         list.add(0, curN % base)
         curN /= base
     }
@@ -484,7 +484,7 @@ fun russian(n: Int): String {
     //Тысячи
     if(thousands != 0) {
         val thousandStr: String
-        if(thousands % 10 == 1) thousandStr = "тысяча"
+        if(thousands % 10 == 1 && thousands % 10 != 11) thousandStr = "тысяча"
         else if(thousands % 10 in 2..4) thousandStr = "тысячи"
         else thousandStr = "тысяч"
         strResult = threeDigitNumber(thousands, true) + " " + thousandStr + " " + strResult
