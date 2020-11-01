@@ -69,7 +69,57 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+//Функция проверяет существование указанной даты
+fun checkDate(day: Int, month: Int, year: Int): Boolean {
+    if(day > 31 || day < 1 || month < 1 || month > 12) return false
+    else if(month in listOf(2, 4, 6, 9, 11) && day == 31) return false
+    else if(month == 2 && day == 29 && (year % 4 != 0 || year % 4 == 0 && year % 100 == 0)) return false
+    else return true
+}
+
+fun dateStrToDigit(str: String): String {
+    val parts: List<String> = str.split(" ")
+    if(parts.count() != 3) return ""
+    //Конвертируем дни в число
+    val day: Int
+    try {
+        day = parts[0].toInt()
+    }
+    catch (e: NumberFormatException) {
+        return ""
+    }
+    //Преобразуем название месяца в номер месяца
+    val month =
+        when(parts[1]){
+            "января" -> 1
+            "февраля" -> 2
+            "марта" -> 3
+            "апреля" -> 4
+            "мая" -> 5
+            "июня" -> 6
+            "июля" -> 7
+            "августа" -> 8
+            "сентября" -> 9
+            "октября" -> 10
+            "ноября" -> 11
+            "декабря" -> 12
+            else -> return ""
+        }
+    //Конвертируем год в число
+    val year: Int
+    try {
+        year = parts[2].toInt()
+    }
+    catch (e: NumberFormatException) {
+        return ""
+    }
+    //Проверка корректности указанной даты
+    if(day > 31 || day < 1) return ""
+    else if(month in listOf(2, 4, 6, 9, 11) && day == 31) return ""
+    else if(month == 2 && day == 29 && (year % 4 != 0 || year % 4 == 0 && year % 100 == 0)) return ""
+    //Собираем результирующую строку
+    return String.format("%02d.%02d.%04d", day, month, year)
+}
 
 /**
  * Средняя
@@ -81,7 +131,42 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val parts = digital.split(".")
+    if(parts.count() != 3) return ""
+    //Конвертируем строки в числа
+    val day:Int
+    val month:Int
+    val year:Int
+    try{
+        day = parts[0].toInt()
+        month = parts[1].toInt()
+        year = parts[2].toInt()
+    }
+    catch(e: NumberFormatException){
+        return ""
+    }
+    //Проверяем существование указанной даты
+    if(!checkDate(day, month, year)) return ""
+    //Преобразуем дату в строку
+    val strMonth =
+        when(month){
+            1 -> "января"
+            2 -> "февраля"
+            3 -> "марта"
+            4 -> "апреля"
+            5 -> "мая"
+            6 -> "июня"
+            7 -> "июля"
+            8 -> "августа"
+            9 -> "сентября"
+            10 -> "октября"
+            11 -> "ноября"
+            12 -> "декабря"
+            else -> ""
+        }
+    return "$day $strMonth $year"
+}
 
 /**
  * Средняя
@@ -97,7 +182,24 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    var editNumber: String
+    var result: String = ""
+
+    //Отбрасываем + в начале номера, если он есть
+    if(phone[0] == '+') editNumber = phone.substring(1).replace("-", "").replace(" ", "")
+    else editNumber = phone.replace("-", "").replace(" ", "")
+
+    //Проверка наличия в строке посторонних символов
+    if(editNumber.replace("+", "").replace("(", "").replace(")", "").count { it !in '0'..'9' } > 0) return ""
+
+    //Проверяем, что в строке одинаковое количество открывающихся и закрывающихся скобок
+    if(editNumber.count { it == '(' } != editNumber.count{ it == ')'}) return ""
+    //Проверяем, что между ними есть хотя бы один символ
+    if(editNumber.contains("()")) return ""
+
+    return phone.replace("-", "").replace(" ", "").replace("(", "").replace(")", "")
+}
 
 /**
  * Средняя
@@ -133,7 +235,21 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    var exp: String = expression.replace(" ", "") //удаляем пробелы
+    //Проверяем наличие посторонних символов
+    if(exp.replace("+", "").replace("-", "").count { it !in '0'..'9' } > 0) throw IllegalArgumentException("Неверный формат строки!")
+
+    //Вычисляем значение выражения
+    val operation: String = exp.replace("[0-9]".toRegex(), "")
+    val numbers = exp.split("[+-]".toRegex())
+    var result: Int = numbers[0].toInt()
+    for(i in 0 until operation.length){
+        if(operation[i] == '+') result += numbers[i + 1].toInt()
+        else result -= numbers[i + 1].toInt()
+    }
+    return result
+}
 
 /**
  * Сложная
@@ -144,7 +260,15 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    var position: Int = 0
+    val list = str.toLowerCase().split(" ")
+    for(i in 0 until list.count() - 1){
+        if(list[i] == list[i + 1]) return position
+        position += list[i].length + 1
+    }
+    return -1
+}
 
 /**
  * Сложная
@@ -157,7 +281,31 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше либо равны нуля.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    val list: List<String> = description.split(" ")
+    if(list.count() < 2) return ""
+    var pairs = mutableMapOf<String, Float>()
+    for(i in 0 until list.count() - 1 step 2){
+        val prise: Float
+        try{
+            prise = list[i + 1].replace(";", "").toFloat()
+        }
+        catch (e: NumberFormatException){
+            return ""
+        }
+        pairs.put(list[i], prise)
+    }
+    //Выбираем самый дорогой продукт
+    var product: String = list[0]
+    var maxPrise: Float = list[1].replace(";", "").toFloat()
+    for(p in pairs){
+        if(p.value > maxPrise) {
+            product = p.key
+            maxPrise = p.value
+        }
+    }
+    return product
+}
 
 /**
  * Сложная
