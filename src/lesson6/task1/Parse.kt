@@ -242,13 +242,44 @@ fun plusMinus(expression: String): Int {
 
     //Вычисляем значение выражения
     val operation: String = exp.replace("[0-9]".toRegex(), "")
-    val numbers = exp.split("[+-]".toRegex())
-    var result: Int = numbers[0].toInt()
-    for(i in 0 until operation.length){
-        if(operation[i] == '+') result += numbers[i + 1].toInt()
-        else result -= numbers[i + 1].toInt()
+    var numbers = exp.split("[+-]".toRegex()).toMutableList()
+    if(exp.substring(0,1) == "-") numbers.removeAt(0)
+
+    //Проверяем, не начинается ли строка с отрицательного числа
+    if(operation.count() == numbers.count() && exp.substring(0,1) != "-") {
+        throw IllegalArgumentException("Неверный формат строки!")
     }
-    return result
+    else if(operation.count() > numbers.count()) throw IllegalArgumentException("Неверный формат строки!")
+    else {
+        var result: Int
+        val operShift: Int
+        try{
+            result = numbers[0].toInt()
+        }
+        catch(e: NumberFormatException){
+            throw IllegalArgumentException("Неверный формат строки!")
+        }
+
+        if(operation.count() == numbers.count() && exp.substring(0,1) == "-") {
+            operShift = 1
+            result *= -1
+        }
+        else operShift = 0
+
+
+        for(i in 0 until operation.length - operShift){
+            val num: Int
+            try{
+                num = numbers[i + 1].toInt()
+            }
+            catch(e: NumberFormatException){
+                throw IllegalArgumentException("Неверный формат строки!")
+            }
+            if(operation[i + operShift] == '+') result += num
+            else result -= num
+        }
+        return result
+    }
 }
 
 /**
